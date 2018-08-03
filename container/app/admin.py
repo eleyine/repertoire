@@ -40,15 +40,18 @@ def setup_admin(app, db):
         # Make Flask-Admin use WTForms-Alchemy
         form_base_class = ModelForm
         def is_accessible(self):
-            return current_user.is_authenticated
+            return current_user.is_admin
 
     class MyModelView(ModelView):
         # Make Flask-Admin use Flask-WTF
         form_base_class = SecureForm
         # form_base_class = ModelForm
 
+    class UserModelView(SecureModelView):
+        column_list = ('username', 'email', 'tmp_password', 'role_list')
+
     admin = Admin(app, template_mode='bootstrap3')
     # Flask and Flask-SQLAlchemy initialization here
-    admin.add_view(MyModelView(User, db.session))
+    admin.add_view(UserModelView(User, db.session))
     admin.add_view(SecureModelView(Role, db.session))
     admin.add_view(SecureModelView(UserRoles, db.session))
