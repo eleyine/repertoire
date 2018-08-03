@@ -8,6 +8,8 @@ from wtforms.validators import DataRequired
 
 from app.main.utils import slugify, camelify, get_config_json, get_username_for_node
 
+from flask_login import current_user
+
 class DataTree:
 
     def __init__(self, json_data):
@@ -381,6 +383,32 @@ class DataNode:
         if not self.is_root_leaf:
             return None
         return get_username_for_node(self)
+
+    @property
+    def is_sensitive_data(self):
+        if not self.is_leaf:
+            return False
+
+        if self.is_leaf and self.leaf_content != None:
+            config = get_config_json()
+            sensitive_data_fields = config['champs_sensibles']
+            if self.label in sensitive_data_fields:
+                return True
+        return False
+
+    @property
+    def is_authorized(self):
+        return not self.is_sensitive_data or current_user.is_admin or current_user.has_acccess_to_sensitive_data
+
+    @property
+    def authorized_leaf_content(self):
+        if self.leaf_content is None:
+            return None
+
+        authorized_content = '**********'
+        if self.is_authorized:
+            authorized_content = self.leaf_content
+        return authorized_content
 
 class BaseForm(object):
     @classmethod

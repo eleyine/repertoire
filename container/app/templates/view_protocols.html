@@ -10,7 +10,7 @@
 	{% for node in protocols recursive %}
 		{% if node.is_child_leaf %}
 					{% if node.leaf_type == 'str' or node.leaf_type == 'bool' %}
-					<p><span class='form-label'>{{node.label}}</span>: {{node.leaf_content}}</p>
+					<p><span class='form-label'>{{node.label}}</span>: {{node.authorized_leaf_content}}</p>
 
 					{% elif node.leaf_type == 'list' %}
 						<p class="form-title list"> {{node.label}} </p>
@@ -18,7 +18,7 @@
 						{% for list in node.children %}
 							<li>
 							{% for child in list.children %}
-								<span class='form-label'>{{child.label}}</span>: {{child.leaf_content}} &nbsp;
+								<span class='form-label'>{{child.label}}</span>: {{child.authorized_leaf_content}} &nbsp;
 							{% endfor %}
 							</li>
 						{% endfor %}
@@ -28,7 +28,7 @@
 						<p class='form-title'>{{node.label}}</p>
 						<ul>
 						{% for child in node.children %}
-								<li><span class='form-label'>{{child.label}}</span>: {{child.leaf_content}}</li>
+								<li><span class='form-label'>{{child.label}}</span>: {{child.authorized_leaf_content}}</li>
 						{% endfor %}
 						</ul>
 					{% else %}

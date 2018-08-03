@@ -36,25 +36,26 @@ def searchbar_lookup():
     def _to_dict(node):
         d = {}
         for _node in node.children:
-            if _node.leaf_type == 'str':
-                d[_node.label] = _node.leaf_content
+            if _node.is_authorized:
+                if _node.leaf_type == 'str':
+                    d[_node.label] = _node.authorized_leaf_content
 
-            elif _node.leaf_type == 'bool':
-                d[_node.label] = str(_node.leaf_content)
+                elif _node.leaf_type == 'bool':
+                    d[_node.label] = str(_node.authorized_leaf_content)
 
-            elif _node.leaf_type == 'dict':
-                sub_d = {}
-                for child in _node.children:
-                    sub_d[child.label] = child.leaf_content
-                d[_node.label] = sub_d
+                elif _node.leaf_type == 'dict':
+                    sub_d = {}
+                    for child in _node.children:
+                        sub_d[child.label] = child.authorized_leaf_content
+                    d[_node.label] = sub_d
 
-            elif _node.leaf_type == 'list':
-                sub_d = {}
-                for i, _node_list in enumerate(_node.children):
-                    for child in _node_list.children:
-                        child_label = '{}_{}'.format(i, child.label)
-                        sub_d[child_label] = child.leaf_content
-                d[_node.label] = sub_d
+                elif _node.leaf_type == 'list':
+                    sub_d = {}
+                    for i, _node_list in enumerate(_node.children):
+                        for child in _node_list.children:
+                            child_label = '{}_{}'.format(i, child.label)
+                            sub_d[child_label] = child.authorized_leaf_content
+                    d[_node.label] = sub_d
         return d
 
     def _searchbar_recursive_helper(protocol_list, node):

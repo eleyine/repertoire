@@ -7,6 +7,9 @@ from hashlib import md5
 from time import time
 from flask import current_app
 
+import re
+
+
 # @login.user_loader
 # def load_user(id):
 #     return User.query.get(int(id))
@@ -26,6 +29,32 @@ class User(db.Model, UserMixin):
 
    # Define the relationship to Role via UserRoles
     roles = db.relationship('Role', secondary='user_roles')
+
+    @property
+    def role_list(self):
+        return ', '.join([r.name for r in self.roles])
+
+    @property
+    def has_acccess_to_sensitive_data(self):
+        # if self.is_admin:
+        #     return True
+        from app.main.utils import get_config_json
+        config = get_config_json()
+        privileged_roles = config['roles_privilegies']
+        patterns = []
+
+        for privileged_role in privileged_roles:
+            p = re.compile(privileged_role)
+            patterns.append(re.compile(p))
+
+        for role in self.roles:
+            for p in patterns:
+                if p.match(role.name):
+                    return True
+
+        return False
+
+
 
     # def __init__(self, username=None, email=None, password=None, roles=None, tmp_password=None, active=True, reinitialise=False):
     #     if not username or not email:
