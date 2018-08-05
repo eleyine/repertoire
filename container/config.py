@@ -27,7 +27,7 @@ class Config(object):
     USER_ENABLE_USERNAME = True    # Enable username authentication
     USER_REQUIRE_RETYPE_PASSWORD = True    # False to simplify register form
     USER_ENABLE_CONFIRM_EMAIL = False
-    USER_ENABLE_FORGOT_PASSWORD = False
+    USER_ENABLE_FORGOT_PASSWORD = True
     USER_SEND_REGISTERED_EMAIL = False
     USER_ALLOW_LOGIN_WITHOUT_CONFIRMED_EMAIL  = True
 

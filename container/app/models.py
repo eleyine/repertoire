@@ -132,5 +132,4 @@ class UserRoles(db.Model):
     user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'))
     role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'))
 
-# db_adapter = SQLAlchemyAdapter(db, User)
-user_manager = UserManager(None, db, User)
+from app.admin.management import CustomUserManager

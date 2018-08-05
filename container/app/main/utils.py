@@ -9,7 +9,7 @@ import string
 
 from flask import current_app
 
-def get_config_json(fn=None):
+def get_config_json(fn=None, update_app_config=True):
     if fn is None:
         fn = current_app.config['CONFIG_JSON_FILENAME']
     config = {}
@@ -32,8 +32,9 @@ def get_config_json(fn=None):
             raise(Exception('Value "{}" for key "{}" in config file is not of type {}'.format(
                 config[k], k, _type)))
 
-    for k, v in config.items():
-        current_app.config[k] = v
+    if update_app_config:
+        for k, v in config.items():
+            current_app.config[k] = v
     return config
 
 def camelify(s):

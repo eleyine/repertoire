@@ -58,44 +58,53 @@ def create_app(config_class=Config):
     from app.auth import bp as auth_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
 
+    from app.admin import bp as admin_bp
+    app.register_blueprint(admin_bp, url_prefix='/custom-admin')
+
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
 
-    from app.main.utils import get_json_data
+    # update app config
+    from app.main.utils import get_config_json
+    with app.app_context():
+        config = get_config_json(update_app_config=False)
+        for k, v in config.items():
+            app.config[k] = v
 
-    if not app.debug and not app.testing:
-        if app.config['MAIL_SERVER']:
-            auth = None
-            if app.config['MAIL_USERNAME'] or app.config['MAIL_PASSWORD']:
-                auth = (app.config['MAIL_USERNAME'],
-                        app.config['MAIL_PASSWORD'])
-            secure = None
-            if app.config['MAIL_USE_TLS']:
-                secure = ()
-            mail_handler = SMTPHandler(
-                mailhost=(app.config['MAIL_SERVER'], app.config['MAIL_PORT']),
-                fromaddr='no-reply@' + app.config['MAIL_SERVER'],
-                toaddrs=app.config['ADMINS'], subject='Microblog Failure',
-                credentials=auth, secure=secure)
-            mail_handler.setLevel(logging.ERROR)
-            app.logger.addHandler(mail_handler)
+    if app.config['MAIL_SERVER'] and app.config["admins"]:
+        app.logger.info("Setting up mail server...")
+        auth = None
+        if app.config['MAIL_USERNAME'] or app.config['MAIL_PASSWORD']:
+            auth = (app.config['MAIL_USERNAME'],
+                    app.config['MAIL_PASSWORD'])
+        secure = None
+        if app.config['MAIL_USE_TLS']:
+            secure = ()
 
-        if not os.path.exists('logs'):
-            os.mkdir('logs')
-        file_handler = RotatingFileHandler('logs/microblog.log',
-                                           maxBytes=10240, backupCount=10)
-        file_handler.setFormatter(logging.Formatter(
-            '%(asctime)s %(levelname)s: %(message)s '
-            '[in %(pathname)s:%(lineno)d]'))
-        file_handler.setLevel(logging.INFO)
-        app.logger.addHandler(file_handler)
+        mail_handler = SMTPHandler(
+            mailhost=(app.config['MAIL_SERVER'], app.config['MAIL_PORT']),
+            fromaddr='no-reply@' + app.config['MAIL_SERVER'],
+            toaddrs=app.config['admins'], subject='Microblog Failure',
+            credentials=auth, secure=secure)
+        mail_handler.setLevel(logging.ERROR)
+        app.logger.addHandler(mail_handler)
 
-        app.logger.setLevel(logging.INFO)
-        app.logger.info('Protocols startup')
+    if not os.path.exists('logs'):
+        os.mkdir('logs')
+    file_handler = RotatingFileHandler('logs/microblog.log',
+                                       maxBytes=10240, backupCount=10)
+    file_handler.setFormatter(logging.Formatter(
+        '%(asctime)s %(levelname)s: %(message)s '
+        '[in %(pathname)s:%(lineno)d]'))
+    file_handler.setLevel(logging.INFO)
+    app.logger.addHandler(file_handler)
 
+    app.logger.setLevel(logging.INFO)
+    app.logger.info('App startup')
 
     # Create protocols database if it does not exist
-    print(app.config.get('PROTOCOLS_DB_FN'))
+    from app.main.utils import get_json_data
+    # print(app.config.get('PROTOCOLS_DB_FN'))
     with sql.connect(app.config.get('PROTOCOLS_DB_FN')) as con:
         cur = con.cursor()
         sql_query = "SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}';".format(table_name='Protocols')
@@ -124,26 +133,17 @@ def create_app(config_class=Config):
                     (user, now, json_str,))
                 con.commit()
 
-    # Setup Flask-User
-    # from app.models import User
-    # user_manager = UserManager(app, db, User)
-    # g.user_manager = user_manager
-    # app.config['user_manager'] = user_manager
-    # user_manager.init(app)
+    from app.models import User
+    from app.models import user_manager
+
+    user_manager.init_app(app, db, User)
 
     @app.context_processor
     def context_processor():
         return dict(user_manager=user_manager, current_user=current_user)
-    # #
-    from app.models import User
-    from app.models import user_manager
-    user_manager.init_app(app, db, User)
-    # from flask_user import UserManager
-    # global user_manager
-    # user_manager = UserManager(app, db, User)
 
     # setup admin
-    from app.admin import setup_admin
+    from app.admin.setup_flask_admin import setup_admin
     with app.app_context():
         setup_admin(app, db)
 

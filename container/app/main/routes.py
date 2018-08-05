@@ -15,7 +15,7 @@ from app.main.graph_models import DataTree
 from app.main.utils import get_json_data, flatten
 from app.main.forms import JsonForm
 
-from app.main.admin_utils import update_users, find_user_node, get_username_for_node
+from app.admin.utils import update_users, find_user_node, get_username_for_node
 
 @bp.route('/', methods=['GET', 'POST'])
 @bp.route('/index/', methods=['GET', 'POST'])

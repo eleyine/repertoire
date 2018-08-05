@@ -1,7 +1,5 @@
 from app.main.utils import get_config_json, get_random_password, get_username_for_node
 from app.models import User, Role, user_manager
-from app import db
-from flask import current_app
 
 def find_user_node(username, tree):
     def _recursive_find_user_node(username, node):
@@ -18,8 +16,19 @@ def find_user_node(username, tree):
     node = _recursive_find_user_node(username, tree.root)
     return node
 
+def set_tmp_password_for_user(user):
+    from app import db
+    tmp_password = get_random_password()
+    hash_password = user_manager.hash_password(tmp_password)
+    user.tmp_password = tmp_password
+    user.password = hash_password
+    user.reinitialise = True
+    db.session.add(user)
+    db.session.commit()
+    return tmp_password
 
 def update_users(tree):
+    from app import db
     config = get_config_json()
     username_field = config['username_field']
     email_field = config['email_field']

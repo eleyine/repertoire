@@ -1,3 +1,4 @@
+
 from flask_admin import Admin
 # from flask_wtf import Form
 from wtforms_alchemy import ModelForm
@@ -40,7 +41,7 @@ def setup_admin(app, db):
         # Make Flask-Admin use WTForms-Alchemy
         form_base_class = ModelForm
         def is_accessible(self):
-            return current_user.is_admin
+            return current_user.is_authenticated and current_user.is_admin
 
     class MyModelView(ModelView):
         # Make Flask-Admin use Flask-WTF
@@ -54,4 +55,4 @@ def setup_admin(app, db):
     # Flask and Flask-SQLAlchemy initialization here
     admin.add_view(UserModelView(User, db.session))
     admin.add_view(SecureModelView(Role, db.session))
-    admin.add_view(SecureModelView(UserRoles, db.session))
+    # admin.add_view(SecureModelView(UserRoles, db.session))
