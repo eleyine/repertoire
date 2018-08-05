@@ -136,3 +136,4 @@ class UserRoles(db.Model):
     role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'))
 
 from app.admin.management import CustomUserManager
+user_manager = CustomUserManager(None, db, User)
