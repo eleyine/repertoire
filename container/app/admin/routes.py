@@ -21,6 +21,7 @@ def reset_password_view():
             hash_password = user_manager.hash_password(password)
             current_user.password = hash_password
             current_user.reinitialise = False
+            current_user.tmp_password = ''
             db.session.add(current_user)
             db.session.commit()
 

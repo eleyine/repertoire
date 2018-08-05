@@ -26,7 +26,7 @@ def setup_admin(app, db):
             return current_user.is_authenticated and current_user.is_admin
 
     class UserModelView(SecureModelView):
-        column_list = ('id', 'username', 'email', 'tmp_password', 'role_list')
+        column_list = ('reinitialise', 'username', 'email', 'tmp_password', 'role_list')
 
     admin = Admin(app, template_mode='bootstrap3')
     # Flask and Flask-SQLAlchemy initialization here
