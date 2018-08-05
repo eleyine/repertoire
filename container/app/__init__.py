@@ -4,42 +4,58 @@ import os
 from flask import Flask, request, current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-# from flask_login import LoginManager
+from flask_babelex import Babel, refresh
 from flask_mail import Mail
 from flask_bootstrap import Bootstrap
 from config import Config
 from flask_wtf.csrf import CSRFProtect
 from flask_user import current_user, UserManager, SQLAlchemyAdapter
-from flask import g
+from flask import g, session
 
 import sqlite3 as sql
 import json
 import datetime
 from sqlalchemy import and_
 
+babel = Babel()
 db = SQLAlchemy()
 migrate = Migrate()
-# user_manager = UserManager(None, db, )
 
-# login = LoginManager()
-# login.login_view = 'auth.login'
-# login.login_message = 'Please log in to access this page.'
 mail = Mail()
 bootstrap = Bootstrap()
 csrf = CSRFProtect()
 
-# user_manager = None
+# @babel.localeselector
+# def get_locale():
+#     if request.args.get('lang'):
+#         session['lang'] = request.args.get('lang')
+#     return session.get('lang', 'fr')
 
-# def init_db(app):
-#     global db
-#     db = SQLAlchemy(app)
-#     from app.models import User
-#     print('Creating models..')
-#     db.create_all()
+# @babel.localeselector
+# def get_locale():
+#     print('getting locale...')
+#     return 'fr'
+    # translations = [str(translation) for translation in babel.list_translations()]
+    # return request.accept_languages.best_match(translations)
 
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
+
+    refresh()
+    babel = Babel(app)
+    import os
+    @babel.localeselector
+    def get_locale():
+        translations = [str(translation) for translation in babel.list_translations()]
+        dirname = os.path.join(app.root_path, 'translations')
+        print(dirname)
+        print(translations)
+        # return request.accept_languages.best_match(translations))
+        return app.config['BABEL_DEFAULT_LOCALE']
+
+    # babel.init_app(app)
+
     csrf.init_app(app)
 
     app.jinja_env.add_extension('jinja2.ext.loopcontrols')
@@ -54,9 +70,6 @@ def create_app(config_class=Config):
 
     from app.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
-
-    from app.auth import bp as auth_bp
-    app.register_blueprint(auth_bp, url_prefix='/auth')
 
     from app.admin import bp as admin_bp
     app.register_blueprint(admin_bp, url_prefix='/custom-admin')
