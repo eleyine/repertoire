@@ -104,7 +104,6 @@ def create_app(config_class=Config):
 
     # Create protocols database if it does not exist
     from app.main.utils import get_json_data
-    # print(app.config.get('PROTOCOLS_DB_FN'))
     with sql.connect(app.config.get('PROTOCOLS_DB_FN')) as con:
         cur = con.cursor()
         sql_query = "SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}';".format(table_name='Protocols')
@@ -153,14 +152,11 @@ def create_app(config_class=Config):
         if not admin_role:
             admin_role = Role(name='Admin')
         for username in app.config['ADMIN_USERNAMES']:
-            print(username)
             user = User.query.filter(User.username == username).one_or_none()
             if user:
-                print('Found user')
                 # user_is_admin = user.is_admin
                 # UserRoles.query.filter(and_(UserRoles.user_id == user.id, UserRoles.role_id == admin_role.id))
                 if not user.is_admin:
-                    print('User is not admin')
                     user.roles.append(admin_role)
                     db.session.add(user)
                     db.session.commit()
