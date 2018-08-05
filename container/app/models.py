@@ -30,6 +30,12 @@ class User(db.Model, UserMixin):
    # Define the relationship to Role via UserRoles
     roles = db.relationship('Role', secondary='user_roles')
 
+    def __eq__(self, other):
+        if hasattr(other, 'username') and other.username == self.username:
+            return True
+        else:
+            return False
+
     @property
     def role_list(self):
         return ', '.join([r.name for r in self.roles])
