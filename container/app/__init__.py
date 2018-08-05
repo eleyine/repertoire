@@ -1,15 +1,14 @@
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
+from flask_babelex import Babel, Domain
 from flask import Flask, request, current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_babelex import Babel, refresh
 from flask_mail import Mail
 from flask_bootstrap import Bootstrap
 from config import Config
 from flask_wtf.csrf import CSRFProtect
-from flask_user import current_user, UserManager, SQLAlchemyAdapter
 from flask import g, session
 
 import sqlite3 as sql
@@ -17,13 +16,31 @@ import json
 import datetime
 from sqlalchemy import and_
 
+# babel = Babel()
+domain = Domain(domain='app')
 babel = Babel()
+
 db = SQLAlchemy()
 migrate = Migrate()
 
 mail = Mail()
 bootstrap = Bootstrap()
 csrf = CSRFProtect()
+
+@babel.localeselector
+def get_locale():
+    translations = [str(translation) for translation in babel.list_translations()]
+    # dirname = os.path.join(app.root_path, 'translations')
+    # print(dirname)
+    print(translations)
+    from flask import _request_ctx_stack
+    ctx = _request_ctx_stack.top
+    # ctx = app.app_context()
+    # print('default domain path', domain.get_translations_path(ctx))
+    # babel._default_domain = domain
+    print('default domain from babel object??', babel._default_domain.get_translations_path(ctx))
+    print('os path:', os.path.join(ctx.app.root_path, 'translations'))
+    return 'fr'
 
 # @babel.localeselector
 # def get_locale():
@@ -42,17 +59,17 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
-    refresh()
-    babel = Babel(app)
-    import os
-    @babel.localeselector
-    def get_locale():
-        translations = [str(translation) for translation in babel.list_translations()]
-        dirname = os.path.join(app.root_path, 'translations')
-        print(dirname)
-        print(translations)
+    # refresh()
+    # dirname = os.path.join(app.root_path, 'translations')
+    # domain = Domain(domain='flask_user', dirname=dirname)
+    # babel = Babel(app, default_domain=domain)
+    # babel._default_domain = domain
+    babel.init_app(app)
+    babel._default_domain = domain
+
+
         # return request.accept_languages.best_match(translations))
-        return app.config['BABEL_DEFAULT_LOCALE']
+        # return app.config['BABEL_DEFAULT_LOCALE']
 
     # babel.init_app(app)
 
@@ -150,6 +167,7 @@ def create_app(config_class=Config):
 
     user_manager.init_app(app, db, User)
 
+    from flask_user import current_user
     @app.context_processor
     def context_processor():
         return dict(user_manager=user_manager, current_user=current_user)

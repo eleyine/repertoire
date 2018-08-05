@@ -1,0 +1,85 @@
+# French translations for PROJECT.
+# Copyright (C) 2018 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2018-08-05 11:39-0400\n"
+"PO-Revision-Date: 2018-08-05 11:39-0400\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: fr\n"
+"Language-Team: fr <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.5.3\n"
+
+#: app/admin/forms.py:20
+msgid "New Password"
+msgstr "Nouveau mot de passe"
+
+#: app/admin/forms.py:21
+msgid "New Password is required"
+msgstr "Nouveau mot de passe est requis"
+
+#: app/admin/forms.py:24
+msgid "Retype New Password"
+msgstr "Retapez votre mot de passe"
+
+#: app/admin/forms.py:25
+msgid "New Password and Retype Password did not match"
+msgstr "Nouveau mot de passe et mot de passe retapé sont différents"
+
+#: app/admin/forms.py:27
+msgid "Change password"
+msgstr "Modifier mot de passe"
+
+#: app/admin/management.py:18
+msgid "Your account has not been enabled."
+msgstr "Votre compte n'a pas été activé"
+
+#: app/admin/management.py:27
+#, python-format
+msgid ""
+"Your email address has not yet been confirmed. Check your email Inbox and"
+" Spam folders for the confirmation email or <a href=\"%(url)s\">Re-send "
+"confirmation email</a>."
+msgstr "Votre courriel n'a pas encore été confirmé. Vérifiez votre boîte et vos pourriels pour le courriel de confirmation ou or <a href=\"%(url)s\">re-envoyer le courriel de confirmation</a>."
+
+#: app/admin/management.py:43
+msgid "You have signed in successfully."
+msgstr "Vous vous êtes connecté avec succès"
+
+#: app/admin/management.py:74
+#, python-format
+msgid "Un mot de passe temporaire a été envoyé au courriel '%(email)s'."
+msgstr "Un mot de passe temporaire a été envoyé au courriel '%(email)s'."
+
+#: app/admin/management.py:78
+#, python-format
+msgid ""
+"Le courriel '%(email)s' n'est assigné à aucun compte. Veuillez contacter "
+"l'administrateur pour créer un compte."
+msgstr ""
+"Le courriel '%(email)s' n'est assigné à aucun compte. Veuillez contacter "
+"l'administrateur pour créer un compte."
+
+#: app/admin/routes.py:32
+msgid "Votre mot de passe a été mis à jour."
+msgstr "Votre mot de passe a été mis à jour"
+
+#: app/templates/admin/_forgot-password.html:5
+msgid "Forgot Password"
+msgstr "Mot de passe oublié"
+
+#: app/templates/admin/reset-password.html:5
+msgid "Reset Password"
+msgstr "Réinitialiser mot de passe"
+
+#: flask_user/templates/flask_user/forgot_password.html:5
+msgid "Forgot Password"
+msgstr "Mot de passe oublié"

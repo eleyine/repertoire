@@ -20,7 +20,7 @@ msgstr ""
 
 #: flask_user/forms.py:40
 msgid "This Username is already in use. Please try another one."
-msgstr "Ce pseudo est déjà utilisé. Veuillez en choisir un autre."
+msgstr "Ce nom d'utilisateur est déjà utilisé. Veuillez en choisir un autre."
 
 #: flask_user/forms.py:47
 msgid "This Email is already in use. Please try another one."

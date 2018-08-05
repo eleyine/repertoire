@@ -1,0 +1,87 @@
+# Translations template for PROJECT.
+# Copyright (C) 2018 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2018-08-05 13:40-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.5.3\n"
+
+#: admin/forms.py:20
+msgid "New Password"
+msgstr ""
+
+#: admin/forms.py:21
+msgid "New Password is required"
+msgstr ""
+
+#: admin/forms.py:24
+msgid "Retype New Password"
+msgstr ""
+
+#: admin/forms.py:25
+msgid "New Password and Retype Password did not match"
+msgstr ""
+
+#: admin/forms.py:27
+msgid "Change password"
+msgstr ""
+
+#: admin/management.py:18
+msgid "Your account has not been enabled."
+msgstr ""
+
+#: admin/management.py:27
+#, python-format
+msgid ""
+"Your email address has not yet been confirmed. Check your email Inbox and"
+" Spam folders for the confirmation email or <a href=\"%(url)s\">Re-send "
+"confirmation email</a>."
+msgstr ""
+
+#: admin/management.py:43
+msgid "You have signed in successfully."
+msgstr ""
+
+#: admin/management.py:74
+#, python-format
+msgid "Un mot de passe temporaire a été envoyé au courriel '%(email)s'."
+msgstr ""
+
+#: admin/management.py:78
+#, python-format
+msgid ""
+"Le courriel '%(email)s' n'est assigné à aucun compte. Veuillez contacter "
+"l'administrateur pour créer un compte."
+msgstr ""
+
+#: admin/routes.py:32
+msgid "Votre mot de passe a été mis à jour."
+msgstr ""
+
+#: main/routes.py:114
+msgid "Modifier votre profil"
+msgstr ""
+
+#: main/routes.py:133
+msgid "ceci est un test"
+msgstr ""
+
+#: templates/admin/_forgot-password.html:5
+msgid "Forgot Password"
+msgstr ""
+
+#: templates/admin/reset-password.html:5
+msgid "Reset Password"
+msgstr ""
+
