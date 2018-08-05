@@ -10,28 +10,10 @@ from app.models import User, Role, UserRoles
 from flask_admin.contrib.sqla import ModelView
 
 # from flask.ext.contrib.sqla import ModelView
-
 class MyForm(Form):
     def __init__(self, formdata=None, obj=None, prefix=u'', **kwargs):
         self._obj = obj
         super(MyForm, self).__init__(formdata=formdata, obj=obj, prefix=prefix, **kwargs)
-
-# class MyForm(ModelForm):
-#     def __init__(self, formdata=None, obj=None, prefix=u'', **kwargs):
-#         self._obj = obj
-#         super(MyForm, self).__init__(formdata=formdata, obj=obj, prefix=prefix, **kwargs)
-
-# class MyModelView(ModelView):
-
-
-#
-# class UserModelView(SecureModelView):
-#     validators=[Unique(model= User, get_session=lambda : db)]
-#
-#     def get_pk_value(self, model):
-#         """
-#         Return the primary key value from a model object. If there are multiple primary keys, they’re encoded into string representation.
-#         """
 
 
 def setup_admin(app, db):
@@ -39,20 +21,14 @@ def setup_admin(app, db):
 
     class SecureModelView(ModelView):
         # Make Flask-Admin use WTForms-Alchemy
-        form_base_class = ModelForm
+        form_base_class = MyForm
         def is_accessible(self):
             return current_user.is_authenticated and current_user.is_admin
 
-    class MyModelView(ModelView):
-        # Make Flask-Admin use Flask-WTF
-        form_base_class = SecureForm
-        # form_base_class = ModelForm
-
     class UserModelView(SecureModelView):
-        column_list = ('username', 'email', 'tmp_password', 'role_list')
+        column_list = ('id', 'username', 'email', 'tmp_password', 'role_list')
 
     admin = Admin(app, template_mode='bootstrap3')
     # Flask and Flask-SQLAlchemy initialization here
     admin.add_view(UserModelView(User, db.session))
     admin.add_view(SecureModelView(Role, db.session))
-    # admin.add_view(SecureModelView(UserRoles, db.session))
