@@ -125,6 +125,9 @@ class Role(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(50), unique=True)
 
+    def __str__(self):
+        return self.name
+
 # Define the UserRoles association table
 class UserRoles(db.Model):
     __tablename__ = 'user_roles'
