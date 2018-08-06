@@ -29,4 +29,5 @@ def reset_users():
 
 
 if __name__ == '__main__':
-    reset_users()
+    pass
+    # reset_users()
