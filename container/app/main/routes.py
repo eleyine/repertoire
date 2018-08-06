@@ -65,14 +65,12 @@ def searchbar_lookup():
             # print(node_dict)
             flat_dict = flatten(node_dict)
             # search_str = ','.join(flat_dict.keys())
-            parent_str = ' / '.join(key_path)
             items = []
-            for k, v in flat_dict.items():
-                field_str = k + ' : ' + str(v)
-                # key_path[-1] = '<span class="last">' + key_path[-1] + '</span>'
+            if 'search_parents' in current_app.config.keys() and current_app.config['search_parents']:
+                parent_str = ' / '.join(key_path[:-1])
+                field_str =  ' / '.join(key_path)
                 item = {
-                    'value': field_str,
-                    # 'value': '{} / {}'.format(parent_str, field_str),
+                    'value': '{} / {}'.format(parent_str, field_str),
                     'data':
                         {
                             'field': field_str,
@@ -82,6 +80,22 @@ def searchbar_lookup():
                         }
                      }
                 items.append(item)
+            else:
+                parent_str = ' / '.join(key_path)
+                for k, v in flat_dict.items():
+                    field_str = k + ' : ' + str(v)
+                    # key_path[-1] = '<span class="last">' + key_path[-1] + '</span>'
+                    item = {
+                        'value': field_str,
+                        'data':
+                            {
+                                'field': field_str,
+                                'category': parent_str,
+                                'id': node.id,
+                                'url': url_for('main.view_protocols', id=node.id)
+                            }
+                         }
+                    items.append(item)
             return items
 
         else:

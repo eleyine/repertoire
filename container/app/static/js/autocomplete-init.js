@@ -16,7 +16,6 @@ $( document ).ready(function() {
   }()),
 
   $.getJSON( "/api/lookup", function( protocols ) {
-    console.log("hey my dude");
 
     $('#protocols-autocomplete').autocomplete({
         lookup: protocols,
