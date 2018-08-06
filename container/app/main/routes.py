@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, url_for, request, g, current_app, jsonify, Markup
 from flask_login import current_user
 from flask_user import current_user, login_required, roles_required
-
+from flask_babelex import gettext as _
 
 import sqlite3 as sql
 import json
@@ -65,14 +65,17 @@ def searchbar_lookup():
             # print(node_dict)
             flat_dict = flatten(node_dict)
             # search_str = ','.join(flat_dict.keys())
-            parent_str = ' \\ '.join(key_path)
+            parent_str = ' / '.join(key_path)
             items = []
             for k, v in flat_dict.items():
+                field_str = k + ' : ' + str(v)
                 # key_path[-1] = '<span class="last">' + key_path[-1] + '</span>'
                 item = {
-                    'value': k + ' : ' + str(v),
+                    'value': field_str,
+                    # 'value': '{} / {}'.format(parent_str, field_str),
                     'data':
                         {
+                            'field': field_str,
                             'category': parent_str,
                             'id': node.id,
                             'url': url_for('main.view_protocols', id=node.id)
@@ -111,7 +114,7 @@ def edit_profile():
         return redirect(url_for('main.edit_profile'))
     elif request.method == 'GET':
         form.username.data = current_user.username
-    return render_template('edit_profile.html', title='Modifier votre profil', form=form)
+    return render_template('edit_profile.html', title=_('Modifier votre profil'), form=form)
 
 @bp.route('/view_item/<id>', methods=['GET'])
 @login_required
@@ -129,7 +132,9 @@ def view_protocols(id, tree=None):
 @login_required
 @csrf.exempt
 def view_last_json():
-
+    print('test...')
+    test_str = _('ceci est un test')
+    print(test_str)
     json_data = get_json_data(current_app)
     json_text = json.dumps(json_data, indent=2, ensure_ascii=False)
     return render_template('view_json.html', json_text=json_text)
@@ -214,7 +219,7 @@ def edit_protocols(id, pre_authorise=False):
         d[keys[-1]] = new_json_subdata
 
         # save new version to db
-        with sql.connect(current_app.config.get('PROTOCOLS_DB')) as con:
+        with sql.connect(current_app.config.get('PROTOCOLS_DB_FN')) as con:
             cur = con.cursor()
             json_str = json.dumps(new_json_data)
             now = str(datetime.datetime.now())
@@ -225,6 +230,24 @@ def edit_protocols(id, pre_authorise=False):
 
         flash('Vos changements ont été enregistrés.')
         return redirect(url_for('main.index'))
+
+@bp.route('/edit_user/pk/<pk>', methods=['GET', 'POST'])
+@login_required
+@roles_required('Admin')
+@csrf.exempt
+def edit_user_information_by_pk(pk):
+    user = User.query.filter(User.id == pk).one_or_none()
+    if not user:
+        flash("Cet utilisateur n'existe pas dans la base de données.")
+        return redirect(url_for('admin.model_view_user.index_view'))
+
+    json_data = get_json_data(current_app)
+    tree = DataTree(json_data)
+    node = find_user_node(user.username, tree)
+    if node:
+        return view_protocols(node.id)
+    else:
+        return redirect(url_for('admin.model_view_user.index_view'))
 
 @bp.route('/edit_user/<username>', methods=['GET', 'POST'])
 @login_required
