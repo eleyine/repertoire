@@ -13,5 +13,6 @@ container/data
 !container/data/example_config.json
 
 container/data/protocols.db
+scripts/secret*
 
 .DS_Store
