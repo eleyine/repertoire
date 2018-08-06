@@ -28,7 +28,7 @@ class User(db.Model, UserMixin):
     reinitialise = db.Column('reset_by_user', db.Boolean(), nullable=False, server_default='0')
 
    # Define the relationship to Role via UserRoles
-    roles = db.relationship('Role', secondary='user_roles')
+    roles = db.relationship('Role', secondary='user_roles', backref='users')
 
     def __eq__(self, other):
         if hasattr(other, 'username') and other.username == self.username:
@@ -42,8 +42,9 @@ class User(db.Model, UserMixin):
 
     @property
     def has_acccess_to_sensitive_data(self):
-        # if self.is_admin:
-        #     return True
+        if self.is_admin:
+            return True
+
         from app.main.utils import get_config_json
         config = get_config_json()
         privileged_roles = config['roles_privilegies']
@@ -54,36 +55,12 @@ class User(db.Model, UserMixin):
             patterns.append(re.compile(p))
 
         for role in self.roles:
-            for p in patterns:
-                if p.match(role.name):
-                    return True
-
+            if role._is_privileged(patterns=patterns):
+                return True
         return False
 
-
-
-    # def __init__(self, username=None, email=None, password=None, roles=None, tmp_password=None, active=True, reinitialise=False):
-    #     if not username or not email:
-    #         raise Exception("User must have username and email")
-    #
-    #     self.username = username
-    #     self.email = email.lower()
-    #     self.active = active
-    #
-    #     if password:
-    #         self.tmp_password = ''
-    #         self.set_password(tmp_password)
-    #         self.reinitialise = True
-    #     else:
-    #         # make tmp password
-    #         if not tmp_password:
-    #             tmp_password = get_random_password()
-    #         self.tmp_password = tmp_password
-    #         self.set_password(tmp_password)
-    #         self.reinitialise = False
-    #
-    #     # Be sure to call the UserMixin's constructor in your class constructor
-    #     UserMixin.__init__(self, roles)
+    def __str__(self):
+        return '{}'.format(self.username)
 
     def __repr__(self): #print username
         return '<User: {}>'.format(self.username)
@@ -100,36 +77,45 @@ class User(db.Model, UserMixin):
             digest, size)
 
     @property
+    def is_in_json(self):
+        from app.main.graph_models import DataTree
+        from app.main.utils import get_json_data
+        from app.admin.utils import find_user_node
+        json_data = get_json_data(current_app)
+        tree = DataTree(json_data)
+        node = find_user_node(self.username, tree)
+        return node is not None
+
+    @property
     def is_admin(self):
         for role in self.roles:
             if role.name == 'Admin':
                 return True
         return False
 
-        # self.roles.query.filter('Admin').count()
-
-#### for resetting passwords via email
-    def get_reset_password_token(self, expires_in=600):
-        return jwt.encode(
-            {'reset_password': self.id, 'exp': time() + expires_in},
-            current_app.config['SECRET_KEY'],
-            algorithm='HS256').decode('utf-8')
-
-    @staticmethod
-    def verify_reset_password_token(token):
-        try:
-            id = jwt.decode(token, current_app.config['SECRET_KEY'],
-                            algorithms=['HS256'])['reset_password']
-        except:
-            return
-        return User.query.get(id)
-####
-
 # Define the Role data-model
 class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(50), unique=True)
+
+    @property
+    def is_privileged(self):
+        return self._is_privileged()
+
+    def _is_privileged(self, patterns=[]):
+        if not patterns:
+            config = get_config_json()
+            privileged_roles = config['roles_privilegies']
+            patterns = []
+            for privileged_role in privileged_roles:
+                p = re.compile(privileged_role)
+                patterns.append(re.compile(p))
+
+        for p in patterns:
+            if p.match(self.name):
+                return True
+        return False
 
     def __str__(self):
         return self.name
@@ -140,6 +126,9 @@ class UserRoles(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'))
     role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'))
+
+    def __str__(self):
+        return 'User {} - Role {}'.format(self.user_id, self.role_id)
 
 from app.admin.management import CustomUserManager
 user_manager = CustomUserManager(None, db, User)

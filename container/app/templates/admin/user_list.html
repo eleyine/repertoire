@@ -1,0 +1,10 @@
+{% extends 'admin/model/list.html' %}
+{% block body %}
+    <!-- <h1>Custom User List View</h1> -->
+    {{ super() }}
+{% endblock %}
+
+{% block list_row_actions %}
+    {{ super() }}
+    <a href="{{ url_for('main.edit_user_information_by_pk', pk=get_pk_value(row)) }}"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></a>
+{% endblock %}

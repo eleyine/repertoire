@@ -55,7 +55,6 @@ def update_users(tree):
             if username and email and isinstance(username, str) and isinstance(email, str):
                 role = _get_role(node)
                 user = (username, email, role)
-                print("Found user", user)
                 return user
         else:
             if not node.is_leaf:
@@ -75,7 +74,7 @@ def update_users(tree):
                 user_role = Role(name=role)
                 db.session.add(user_role)
                 db.session.commit()
-
+                print('Added', user_role)
             roles[role] = user_role
         # check if username exists
         user = User.query.filter(User.username == username).one_or_none()
@@ -88,3 +87,4 @@ def update_users(tree):
                 user.roles = [user_role,]
             db.session.add(user)
             db.session.commit()
+            print('Added', user)

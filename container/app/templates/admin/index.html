@@ -1,10 +1,81 @@
 {% extends 'admin/master.html' %}
 
+{% block head_css %}
+  {{ super() }}
+  <!-- <link rel="stylesheet" href="{{ url_for('static', filename='bower_components/bootstrap/dist/css/bootstrap.min.css') }}" ></link> -->
+{% endblock %}
+
 {% block body %}
 {% if current_user.is_anonymous %}
-  <p>Il faut être admin pour avoir accès à cette page./p>
+  <p>Il faut être admin pour avoir accès à cette page. <a class="nav-link" href="{{ url_for('user.login') }}">Se connecter</a>.</p>
 {% else %}
-  <p>Utilisateurs: </p>
-  <p>Roles: </p>
+  <div class="row">
+    <div class="col-md-12">
+      <h4>Bonjour <strong>{{current_user.username}}</strong>, </h4>
+      <p>En tant qu'administrateur vous pouvez:</p>
+      <ul>
+        <li>Modifier le <a class="nav-link" href="{{ url_for('main.view_last_json') }}">JSON</a> sur lequel est basé ce site</li>
+        <li>Ajouter des rôles</li>
+        <li>Assigner des rôles à des utilisateurs</li>
+      </ul>
+      <h3> Description des rôles</h3>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Role</th>
+              <th>Accès à interface Admin</th>
+              <th>Modifier JSON</th>
+              <th>Ajouter/modifier rôles</th>
+              <th>Lire informations sensibles</th>
+            </tr>
+          </thead>
+        <tbody>
+          <tr>
+            <td>Admin</td>
+            <td>&#10004;</td>
+            <td>&#10004;</td>
+            <td>&#10004;</td>
+            <td>&#10004;</td>
+          </tr>
+        {% for role in privileged_roles %}
+          <tr>
+            <td>{{role}}</td>
+            <td>&#10005;</td>
+            <td>Seulement ses propres informations</td>
+            <td>&#10005;</td>
+            <td>&#10004;</td>
+          </tr>
+        {% endfor %}
+        {% for role in non_privileged_roles %}
+          <tr>
+            <td>{{role}}</td>
+            <td>&#10005;</td>
+            <td>Seulement ses propres informations</td>
+            <td>&#10005;</td>
+            <td>&#10005;</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      <p>Notes:</p>
+      <ul>
+        <li>Attention à la police, les rôles sont case-sensitive.</li>
+        <li>Les rôles sont cumulatifs. Un employé peut avoir à la fois le rôle "Admin" et "EMPLOYÉS" et ainsi avoir tous les privilèges d'un Admin</li>
+        <li>Les informations sensibles correspondent aux champs suivants: <strong>{{champs_sensibles}}</strong></li>
+      </ul>
+      </div>
+
+      <h3>Champs modifiables via interface admin</h3>
+      <p>L'interface admin ne permet que de modifier/assigner des <a class="nav-link" href="{{ url_for('admin.model_view_role.index_view') }}">rôles</a> ainsi qu'activer ou inactiver des comptes d'<a class="nav-link" href="{{ url_for('admin.model_view_user.index_view') }}">utilisateurs</a>.</p>
+      <p>Pour toute autre opération, veuiller éditer le <a class="nav-link" href="{{ url_for('main.view_last_json') }}">JSON</a>. Ceci permettrait par exemple de:
+      </p>
+      <ul>
+        <li>Ajouter des utilisateurs</li>
+        <li>Modifier des noms d'utlisateurs / courriels</li>
+        <li>Ajouter/modifier/supprimer des champs associés à chaque utilisateur</li>
+      </ul>
+    </div>
+  </div>
 {% endif %}
 {% endblock %}
