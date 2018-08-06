@@ -37,30 +37,36 @@
         </div>
     </div> -->
     {% block menu %}
-    <nav class="navbar navbar-default navbar-expand-lg navbar-light bg-light">
+
+
+    <nav class="navbar navbar-default navbar-static-top">
         <div class="container">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-              </button>
-          <div class="collapse navbar-collapse" id="navbarToggler">
-              <a class="navbar-brand" href="{{ url_for('main.index') }}">{{ user_manager.USER_APP_NAME }}</a>
-              <ul class="nav navbar-nav mt-2 mt-lg-0">
-                  <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}">Accueil</a></li>
-              </ul>
-              <ul class="nav navbar-nav my-2 ml-auto  my-lg-0 navbar-right">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">{{ user_manager.USER_APP_NAME }}</a>
+          </div>
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+              <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}">Accueil</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
               {% if call_or_get(current_user.is_authenticated) %}
-                  <li class="nav-item">
-                      <a href="{{ url_for('user.edit_user_profile') }}">{{ current_user.username or current_user.email }}</a>
-                    </li>
-                  &nbsp; | &nbsp;
-                    <ul class="nav navbar-nav mt-2 mt-lg-0">
-                      <li class="nav-item">
-                          <a href="{{ url_for('user.logout') }}">{%trans%}Sign out{%endtrans%}</a>
-                        </li>
+                <li class="nav-item">
+                  <a href="{{ url_for('user.edit_user_profile') }}">{{ current_user.username or current_user.email }}</a>
+                </li>
+                <li role="separator" class="divider"></li>
+                <li class="nav-item">
+                  <a href="{{ url_for('user.logout') }}">{%trans%}Sign out{%endtrans%}</a>
+                </li>
               {% else %}
-                  <li class="nav-item">
-                      <a href="{{ url_for('user.login') }}">{%trans%}Sign in{%endtrans%}</a>
-                    </li>
+                <li class="nav-item">
+                  <a href="{{ url_for('user.login') }}">{%trans%}Sign in{%endtrans%}</a>
+                </li>
               {% endif %}
             </ul>
           </div>

@@ -3,6 +3,9 @@
 {% block head_css %}
   {{ super() }}
   <!-- <link rel="stylesheet" href="{{ url_for('static', filename='bower_components/bootstrap/dist/css/bootstrap.min.css') }}" ></link> -->
+<!-- <style>
+.navbar { margin-top: 15px; }
+</style> -->
 {% endblock %}
 
 {% block body %}
@@ -60,9 +63,9 @@
       </table>
       <p>Notes:</p>
       <ul>
-        <li>Attention à la police, les rôles sont case-sensitive.</li>
         <li>Les rôles sont cumulatifs. Un employé peut avoir à la fois le rôle "Admin" et "EMPLOYÉS" et ainsi avoir tous les privilèges d'un Admin</li>
         <li>Les informations sensibles correspondent aux champs suivants: <strong>{{champs_sensibles}}</strong></li>
+        <li>Attention à la police, les rôles sont case-sensitive.</li>
       </ul>
       </div>
 
