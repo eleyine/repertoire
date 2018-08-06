@@ -14,7 +14,51 @@ import re
 # def load_user(id):
 #     return User.query.get(int(id))
 
-class User(db.Model, UserMixin):
+class MyUserMixin(UserMixin):
+    def get_id(self):
+        """Converts a User ID and parts of a User password hash to a token."""
+
+        # This function is used by Flask-Login to store a User ID securely as a browser cookie.
+        # The last part of the password is included to invalidate tokens when password change.
+        # user_id and password_ends_with are encrypted, timestamped and signed.
+        # This function works in tandem with UserMixin.get_user_by_token()
+        user_manager = current_app.user_manager
+
+        user_id = self.id
+        password_ends_with = '' if user_manager.USER_ENABLE_AUTH0 or self.password is None else self.password[-8:]
+        user_token = user_manager.generate_token(
+            user_id,               # User ID
+            password_ends_with,    # Last 8 characters of user password
+        )
+        # print("UserMixin.get_id: ID:", self.id, "token:", user_token)
+        return user_token
+
+    @classmethod
+    def get_user_by_token(cls, token, expiration_in_seconds=None):
+        # This function works in tandem with UserMixin.get_id()
+        # Token signatures and timestamps are verified.
+        # user_id and password_ends_with are decrypted.
+
+        # Verifies a token and decrypts a User ID and parts of a User password hash
+        user_manager = current_app.user_manager
+        data_items = user_manager.verify_token(token, expiration_in_seconds)
+
+        # Verify password_ends_with
+        token_is_valid = False
+        if data_items:
+
+            # Load user by User ID
+            user_id = data_items[0]
+            password_ends_with = data_items[1]
+            user = user_manager.db_manager.get_user_by_id(user_id)
+            user_password = '' if user_manager.USER_ENABLE_AUTH0 or user is None else user.password[-8:]
+
+            # Make sure that last 8 characters of user password matches
+            token_is_valid = user and user_password==password_ends_with
+
+        return user if token_is_valid else None
+
+class User(db.Model, MyUserMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     active = db.Column('is_active', db.Boolean(), nullable=False, server_default='1')
@@ -35,6 +79,8 @@ class User(db.Model, UserMixin):
             return True
         else:
             return False
+
+
 
     @property
     def role_list(self):
