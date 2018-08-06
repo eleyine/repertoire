@@ -4,19 +4,27 @@ from wtforms import StringField, FormField, FieldList, SubmitField, PasswordFiel
 from wtforms import validators
 from flask_user.forms import password_validator
 from flask import current_app
+
+class CustomUserForm(FlaskForm):
+    username = StringField('Nom d\'utilisateur', validators=[validators.DataRequired()])
+    email = StringField('Courriel', validators=[validators.DataRequired()])
+
+class CustomUsersForm(FlaskForm):
+    users = FieldList(FormField(CustomUserForm))
+
 class CustomResetPasswordForm(FlaskForm):
     """Reset password form."""
     # password = PasswordField(_('Mot de passe (temporaire)'), validators=[
         # validators.DataRequired(_('Password is required')),
         # ])
-    new_password = PasswordField(_('New Password'), validators=[
-        validators.DataRequired(_('New Password is required')),
+    new_password = PasswordField('Nouveau mot de passe', validators=[
+        validators.DataRequired('Nouveau mot de passe est requis'),
         password_validator,
         ])
-    retype_password = PasswordField(_('Retype New Password'), validators=[
-        validators.EqualTo('new_password', message=_('New Password and Retype Password did not match'))])
+    retype_password = PasswordField('Retapez nouveau mot de passe', validators=[
+        validators.EqualTo('new_password', message='Nouveau mot de passe et mot de passe retapé sont différents')])
     next = HiddenField()
-    submit = SubmitField(_('Change password'))
+    submit = SubmitField('Soumettre nouveau mot de passe')
 
     def validate(self):
         # Use feature config to remove unused form fields

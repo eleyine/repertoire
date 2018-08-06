@@ -4,6 +4,7 @@ import os
 from flask_babelex import Babel, Domain
 from flask import Flask, request, current_app
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import and_
 from flask_migrate import Migrate
 from flask_mail import Mail
 from flask_bootstrap import Bootstrap
@@ -27,51 +28,27 @@ mail = Mail()
 bootstrap = Bootstrap()
 csrf = CSRFProtect()
 
-@babel.localeselector
-def get_locale():
-    translations = [str(translation) for translation in babel.list_translations()]
-    # dirname = os.path.join(app.root_path, 'translations')
-    # print(dirname)
-    print(translations)
-    from flask import _request_ctx_stack
-    ctx = _request_ctx_stack.top
-    # ctx = app.app_context()
-    # print('default domain path', domain.get_translations_path(ctx))
-    # babel._default_domain = domain
-    print('default domain from babel object??', babel._default_domain.get_translations_path(ctx))
-    print('os path:', os.path.join(ctx.app.root_path, 'translations'))
-    return 'fr'
-
-# @babel.localeselector
-# def get_locale():
-#     if request.args.get('lang'):
-#         session['lang'] = request.args.get('lang')
-#     return session.get('lang', 'fr')
-
-# @babel.localeselector
-# def get_locale():
-#     print('getting locale...')
-#     return 'fr'
-    # translations = [str(translation) for translation in babel.list_translations()]
-    # return request.accept_languages.best_match(translations)
-
 def create_app(config_class=Config):
-    app = Flask(__name__)
+    app = Flask(__name__, static_url_path='/static')
     app.config.from_object(config_class)
 
-    # refresh()
-    # dirname = os.path.join(app.root_path, 'translations')
-    # domain = Domain(domain='flask_user', dirname=dirname)
-    # babel = Babel(app, default_domain=domain)
-    # babel._default_domain = domain
     babel.init_app(app)
     babel._default_domain = domain
 
-
-        # return request.accept_languages.best_match(translations))
-        # return app.config['BABEL_DEFAULT_LOCALE']
-
-    # babel.init_app(app)
+    @babel.localeselector
+    def get_locale():
+        # translations = [str(translation) for translation in babel.list_translations()]
+        # dirname = os.path.join(app.root_path, 'translations')
+        # print(dirname)
+        # print(translations)
+        # from flask import _request_ctx_stack
+        # ctx = _request_ctx_stack.top
+        # ctx = app.app_context()
+        # print('default domain path', domain.get_translations_path(ctx))
+        # babel._default_domain = domain
+        # print('default domain from babel object??', babel._default_domain.get_translations_path(ctx))
+        # print('os path:', os.path.join(ctx.app.root_path, 'translations'))
+        return app.config['BABEL_DEFAULT_LOCALE']
 
     csrf.init_app(app)
 
@@ -164,7 +141,6 @@ def create_app(config_class=Config):
 
     from app.models import User
     from app.models import user_manager
-
     user_manager.init_app(app, db, User)
 
     from flask_user import current_user
@@ -178,21 +154,32 @@ def create_app(config_class=Config):
         setup_admin(app, db)
 
     # make sure admins have admin roles
+    from app.main.utils import get_random_password
     with app.app_context():
         admin_role = Role.query.filter(Role.name == 'Admin').one_or_none()
         if not admin_role:
             admin_role = Role(name='Admin')
-        for username in app.config['ADMIN_USERNAMES']:
-            user = User.query.filter(User.username == username).one_or_none()
-            if user:
-                # user_is_admin = user.is_admin
-                # UserRoles.query.filter(and_(UserRoles.user_id == user.id, UserRoles.role_id == admin_role.id))
-                if not user.is_admin:
-                    user.roles.append(admin_role)
+            db.session.add(admin_role)
+            db.session.commit()
+
+        for username, email in app.config['admins']:
+            user = User.query.filter(and_(User.username == username, User.email == email)).one_or_none()
+            if not user:
+                tmp_password = get_random_password()
+                hash_password = user_manager.hash_password(tmp_password)
+                try:
+                    user = User(username=username, email=email, tmp_password=tmp_password, password=hash_password, reinitialise=True)
                     db.session.add(user)
                     db.session.commit()
+                except Exception as e:
+                    print(str(e))
+                    user = None
+
+            if user and not user.is_admin:
+                user.roles.append(admin_role)
+                db.session.add(user)
+                db.session.commit()
     return app
 
 from app import models
 from app.models import User, Role, UserRoles
-# user_manager = UserManager(app, db, User)
