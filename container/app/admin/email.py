@@ -17,6 +17,7 @@ def send_email(subject, sender, recipients, text_body, html_body):
            args=(current_app._get_current_object(), msg)).start()
 
 def send_password_reset_email(user, tmp_password):
+    print('sending password reset email with password', tmp_password)
     site_title = current_app.config['title']
     send_email('[{}] Réinitialisation de mot de passe'.format(site_title),
                sender=current_app.config['USER_EMAIL_SENDER_EMAIL'],
