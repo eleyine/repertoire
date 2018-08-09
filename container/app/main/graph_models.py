@@ -286,7 +286,7 @@ class DataNode:
         class_name = form_prefix + attr + 'Class'
 
         if class_name not in self.form_classes.keys():
-            form_class = type(class_name, (DynamicChildForm,), {})
+            form_class = type(class_name, (DynamicForm,), {})
 
         self.form_classes[attr] = form_class
         return form_class
@@ -296,6 +296,8 @@ class DataNode:
         form_field_info = []
 
         priority = { 'str': 0, 'bool': 1, 'dict': 2, 'list': 3 }
+        dynamic_form_class = self.get_form_class_for_attr(self.id)
+
         for node in sorted(self.children, key=lambda x: priority[x.leaf_type]):
             field_label = node.label
             attr = camelify(field_label)
@@ -307,7 +309,7 @@ class DataNode:
 
             if node.leaf_type == 'str' or node.leaf_type == 'bool':
                 # define form attribute (field)
-                DynamicForm.append_field(attr, TextField(node.label, validators=[], id=field_id))
+                dynamic_form_class.append_field(attr, TextField(node.label, validators=[], id=field_id))
 
             elif node.leaf_type == 'dict':
                 sub_form_class = self.get_form_class_for_attr(attr)
@@ -317,7 +319,7 @@ class DataNode:
                     self.index[child_attr] = child.label
                     child_field_id = slugify(child.label)
                     sub_form_class.append_field(child_attr, TextField(child.label, validators=[], id=child_field_id))
-                DynamicForm.append_field(attr, FormField(sub_form_class, id=field_id))
+                dynamic_form_class.append_field(attr, FormField(sub_form_class, id=field_id))
 
             elif node.leaf_type == 'list':
                 first_list = node.children[0]
@@ -328,7 +330,7 @@ class DataNode:
                     self.index[child_attr] = child.label
                     child_field_id = slugify(child.label)
                     sub_form_class.append_field(child_attr, TextField(child.label, validators=[], id=child_field_id))
-                DynamicForm.append_field(attr, FieldList(FormField(sub_form_class, id=field_id)))
+                dynamic_form_class.append_field(attr, FieldList(FormField(sub_form_class, id=field_id)))
 
 
             form_field_info.append(
@@ -340,7 +342,7 @@ class DataNode:
                     # 'field_obj': field_obj
                 })
 
-        form = DynamicForm()
+        form = dynamic_form_class()
 
         # define field values
         if fill_data:
@@ -418,9 +420,5 @@ class BaseForm(object):
         return cls
 
 class DynamicForm(FlaskForm, BaseForm):
-    class Meta:
-        crsf = False
-
-class DynamicChildForm(FlaskForm, BaseForm):
     class Meta:
         crsf = False
