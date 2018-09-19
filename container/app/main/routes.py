@@ -5,6 +5,7 @@ from flask_babelex import gettext as _
 
 import sqlite3 as sql
 import json
+import os
 import datetime, time
 
 from app import db
@@ -12,19 +13,28 @@ from app.models import User
 from app.main import bp
 from app import csrf
 from app.main.graph_models import DataTree
-from app.main.utils import get_json_data, flatten
+from app.main.utils import get_json_data, flatten, update_static_content
 from app.main.forms import JsonForm
 
 from app.admin.utils import update_users, find_user_node, get_username_for_node
+
+@bp.route('/dynamic-index/', methods=['GET', 'POST'])
+@login_required
+@csrf.exempt
+def dynamic_index():
+    json_data = get_json_data(current_app)
+    tree_obj = DataTree(json_data)
+    return render_template('index/dynamic_index.html', title='Accueil', protocols=tree_obj.root.children)
 
 @bp.route('/', methods=['GET', 'POST'])
 @bp.route('/index/', methods=['GET', 'POST'])
 @login_required
 @csrf.exempt
 def index():
-    json_data = get_json_data(current_app)
-    tree_obj = DataTree(json_data)
-    return render_template('index.html', title='Accueil', protocols=tree_obj.root.children)
+    static_html_fn = current_app.config['STATIC_CONTENT_FILENAME']
+    if not os.path.exists(static_html_fn):
+        update_static_content(current_app)
+    return render_template('index/static_index.html', title='Accueil')
 
 @bp.route('/api/lookup', methods=['GET'])
 @login_required
@@ -184,6 +194,9 @@ def edit_last_json():
             # update users
             tree = DataTree(json_dict)
             update_users(tree)
+
+            # update static content
+            update_static_content(current_app)
 
             flash('Vos changements ont été enregistrés.')
             return redirect(url_for('main.index'))
