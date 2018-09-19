@@ -6,6 +6,7 @@ from flask_babelex import gettext as _
 import sqlite3 as sql
 import json
 import datetime, time
+import os
 
 from app import db
 from app.models import User
@@ -25,12 +26,61 @@ def index():
     json_data = get_json_data(current_app)
     tree_obj = DataTree(json_data)
     return render_template('index.html', title='Accueil', protocols=tree_obj.root.children)
+#
+# @bp.route('/alt-index/', methods=['GET', 'POST'])
+# @login_required
+# @csrf.exempt
+# def alt_index():
+#
+#     def _to_json(node):
+#         data = {}
+#         node.node_to_dict(data=data)
+#         print(json.dumps(data, indent=2))
+#
+#         #
+#         # for _node in node.children:
+#         #     print(_node.id)
+#         #     print(json.dumps(_node.to_dict(), indent=2))
+#         #     break
+#             # n = {
+#             #     'is_child_leaf': _node.is_child_leaf,
+#             #     'leaf_type': _node.leaf_type,
+#             #
+#             # }
+#             # if _node.is_child_leaf:
+#             #     if _node.leaf_type == 'str' or node.leaf_type
+#             #
+#
+#     json_data = get_json_data(current_app)
+#     tree_obj = DataTree(json_data)
+#
+#     data = []
+#     root_children = tree_obj.root.children
+#     _to_json(tree_obj.root)
+# 
+#     return render_template('index.html', title='Accueil', protocols=tree_obj.root.children)
+
 
 @bp.route('/api/lookup', methods=['GET'])
 @login_required
 def searchbar_lookup():
-    json_data = get_json_data(current_app)
-    tree_obj = DataTree(json_data)
+    json_fn = current_app.config['JSON_LOOKUP_FN']
+    json_data = []
+
+    # generate json for first time
+    if not os.path.exists(json_fn):
+        json_data = _generate_json()
+        with open(json_fn, 'w') as f:
+            json.dump(json_data, f, indent=2)
+    else:
+        with open(json_fn, 'r') as f:
+            json_data = json.load(f)
+    return jsonify(json_data)
+
+def _generate_json(tree_obj=None):
+    if not tree_obj:
+        json_data = get_json_data(current_app)
+        tree_obj = DataTree(json_data)
     protocols = [tree_obj.root]
 
     def _to_dict(node):
@@ -107,8 +157,7 @@ def searchbar_lookup():
 
     lookup_data = []
     _searchbar_recursive_helper(lookup_data, tree_obj.root)
-    # print(json.dumps(lookup_data, indent=2))
-    return jsonify(lookup_data)
+    return lookup_data
 
 @bp.route('/user/<username>')
 @login_required
@@ -184,6 +233,12 @@ def edit_last_json():
             # update users
             tree = DataTree(json_dict)
             update_users(tree)
+
+            # save lookup data
+            json_data = _generate_json(tree_obj=tree)
+            json_fn = current_app.config['JSON_LOOKUP_FN']
+            with open(json_fn, 'w') as f:
+                json.dump(json_data, f, indent=2)
 
             flash('Vos changements ont été enregistrés.')
             return redirect(url_for('main.index'))

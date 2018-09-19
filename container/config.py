@@ -14,6 +14,7 @@ class Config(object):
 
     PROTOCOLS_DB_FN = os.path.join(basedir, 'data', 'repertoire.db')
     PROTOCOLS_DB_URI = 'sqlite:///' + PROTOCOLS_DB_FN
+    JSON_LOOKUP_FN = os.path.join(basedir, 'data', 'lookup.json')
     CONFIG_JSON_FILENAME = os.path.join(basedir, 'data', 'config.json')
     ROOT_DIR = basedir
 

@@ -219,12 +219,43 @@ class DataNode:
         if tree:
             tree.index[id] = self
 
+    # def node_to_dict(self, data = {}):
+    #     if not self.is_terminal_leaf:
+    #         for c in self.children:
+    #             d = c.node_to_dict(data=data)
+    #             if 'children' not in data.keys():
+    #                 data['children'] = []
+    #             data['children'].append(d)
+    #         # return None
+    #     else:
+    #         d = {
+    #                 'parent_id' : self.parent.id,
+    #                 'id' : self.id,
+    #                 'label' : self.label,
+    #                 'level' : self.level,
+    #                 'children' : None,
+    #                 'is_leaf' : self.is_leaf,
+    #                 'leaf_type' : self.leaf_type,
+    #                 'leaf_content' : self.leaf_content,
+    #                 'is_root_leaf' : self.is_root_leaf,
+    #                 'is_terminal_leaf' : self.is_terminal_leaf,
+    #                 'is_child_leaf' : self.is_child_leaf,
+    #                 # 'tree': self.tree
+    #                 'keys' : self.keys,
+    #                 'index' : self.index
+    #                 # 'form_classes' : self.form_classes
+    #         }
+    #         print(' ' * d['level'], d['id'])
+    #         print(d)
+    #         return d
+
+
     def __str__(self):
         return DataNode.node_to_str(self.tree)
 
     def to_dict(self, form=None):
         if not form:
-            form, _ = self.get_form(fill_data=True)
+            form = self.get_form(fill_data=True)
 
         def rebuild(node, index):
             if isinstance(node, str):
