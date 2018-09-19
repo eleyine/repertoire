@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+  <!-- <br> -->
+  <div class="row">
+    <div class="col-12 protocols">
+      <div class="row justify-content-md-center">
+        <div class="col-10 protocols-searchbar">
+          <!-- <h4 class="title">Recherche </h4> -->
+
+          <div class="input-group mb-3 input-group-lg">
+            <div class="input-group-prepend">
+              <label class="input-group-text" for="inputGroupSelect01">Recherche</label>
+            </div>
+            <input type="text" class="form-control" placeholder="{{config.placeholder_recherche}}"  name="protocol-searchbar" id="protocols-autocomplete">
+            <!-- <div class="input-group-append">
+              <label class="input-group-text" >Recherche</button>
+            </div> -->
+            <!-- <div class="input-group-append">
+              <button class="btn btn-outline-secondary" type="button" id="protocols-search-button">Recherche</button>
+            </div> -->
+          </div>
+        </div>
+      </div>
+
+    {% include "index/static_content.html" %}
+  </div>
+</div>
+
+{%endblock%}
+
+
+{% block js %}
+<script src="{{ url_for('static', filename='devbridge-autocomplete/dist/jquery.autocomplete.min.js') }}?q=1280011hello"></script>
+<script src="{{ url_for('static', filename='js/autocomplete-init.js') }}?q=1280011sup"></script>
+{% endblock %}

@@ -125,3 +125,13 @@ def get_username_for_node(node):
         if child.label == username_field:
             return child.leaf_content
     return None
+
+def update_static_content(app):
+    from app.main.graph_models import DataTree
+    from flask import render_template
+    static_html_fn = app.config['STATIC_CONTENT_FILENAME']
+    json_data = get_json_data(app)
+    tree_obj = DataTree(json_data)
+    static_html = render_template('index/static_content_template.html', title='Accueil', protocols=tree_obj.root.children)
+    with open(static_html_fn, 'w') as f:
+        f.write(static_html)

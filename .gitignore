@@ -12,6 +12,8 @@ container/logs
 container/data
 !container/data/example_config.json
 
+container/app/templates/index/static_content.html
+
 container/data/protocols.db
 scripts/secret*
 
