@@ -275,6 +275,8 @@ def edit_protocols(id, pre_authorise=False):
                 (user, now, json_str,))
             con.commit()
 
+        update_static_content(current_app)
+
         flash('Vos changements ont été enregistrés.')
         return redirect(url_for('main.index'))
 
@@ -315,4 +317,5 @@ def edit_user_information(username):
     json_data = get_json_data(current_app)
     tree = DataTree(json_data)
     node = find_user_node(username, tree)
+    update_static_content(current_app)
     return view_protocols(node.id)
